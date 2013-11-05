@@ -4,9 +4,11 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 public class IO {
 
@@ -16,9 +18,10 @@ public class IO {
 		out.close();
 	}
 	
-	public Object load(String filename) throws FileNotFoundException, IOException, ClassNotFoundException{
+	@SuppressWarnings("unchecked")
+	public HashMap<String, String[]> load(String filename) throws FileNotFoundException, IOException, ClassNotFoundException{
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
-		Object o = in.readObject();
+		HashMap<String, String[]> o = (HashMap<String, String[]>) in.readObject();
 		in.close();
 		return o;
 	}
@@ -26,16 +29,38 @@ public class IO {
 	@SuppressWarnings("deprecation")
 	public String[] loadArrayFromTxt(String path) throws Exception{
 		if(path == null) return null;
-		String[] strings = new String[128];
+		String[] strings = new String[10];
 		DataInputStream in = new DataInputStream(new FileInputStream(path));
 		String string;
 		int count = 0;
 		while((string = in.readLine()) != null){
-			if(count >= 127) break;
+			if(count >= 9) break;
 			strings[count] = string;
 			count++;
 		}		
 		in.close();
 		return strings;
+	}
+	
+	public boolean writeTextToFile(Object o, String filename){
+		try{
+			FileWriter out = new FileWriter(filename);
+			if(o instanceof String[]){
+				String[] strings = (String[]) o;
+				for(int i = 0; i <= strings.length - 1; i++){
+					out.write(strings[i] + ", ");
+				}
+				out.close();
+			}else if(o instanceof String){
+				String string = (String) o;
+				out.write(string + ", ");
+				out.close();
+			}
+			out.close();
+			return true;
+		}catch (Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
